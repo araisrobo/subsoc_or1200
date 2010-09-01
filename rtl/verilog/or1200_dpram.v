@@ -94,8 +94,10 @@ module or1200_dpram
    //
    // Generic RAM's registers and wires
    //
-   reg [dw-1:0] 		mem [(1<<aw)-1:0] /*synthesis syn_ramstyle = "no_rw_check"*/;	// RAM content
-   reg [aw-1:0] 		addr_a_reg;		// RAM address registered
+   // reg [dw-1:0] 		mem [(1<<aw)-1:0] /* synthesis_syn_ramstyle = "no_rw_check"*/;	// RAM content
+   (* ram_style = "distributed" *)
+   reg [dw-1:0] 		mem [(1<<aw)-1:0];
+   reg [aw-1:0] 		addr_a_reg;	  // RAM address registered
 
 
    // Function to access GPRs (for use by Verilator). No need to hide this one
