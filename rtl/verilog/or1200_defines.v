@@ -136,17 +136,17 @@
 //
 // Do not implement Insn cache
 //
-//`define OR1200_NO_IC
+`define OR1200_NO_IC
 
 //
 // Do not implement Data MMU
 //
-//`define OR1200_NO_DMMU
+`define OR1200_NO_DMMU
 
 //
 // Do not implement Insn MMU
 //
-//`define OR1200_NO_IMMU
+`define OR1200_NO_IMMU
 
 //
 // Select between ASIC and generic multiplier
@@ -160,9 +160,9 @@
 // Size/type of insn/data cache if implemented
 // (consider available FPGA memory resources)
 //
-//`define OR1200_IC_1W_512B
+`define OR1200_IC_1W_512B
 //`define OR1200_IC_1W_4KB
-`define OR1200_IC_1W_8KB
+//`define OR1200_IC_1W_8KB
 //`define OR1200_DC_1W_4KB
 `define OR1200_DC_1W_8KB
 
@@ -338,6 +338,13 @@
 //
 //`define OR1200_IMPL_ALU_COMP1
 `define OR1200_IMPL_ALU_COMP2
+
+//
+// Implement CUST5 instruction
+//
+// Uncomment to enable CUST5(custom) instruction
+//
+//`define OR1200_CUST5_IMPLEMENTED
 
 //
 // Implement multiplier

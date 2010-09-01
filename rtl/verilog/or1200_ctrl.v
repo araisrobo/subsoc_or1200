@@ -365,8 +365,13 @@ assign ex_macrc_op = 1'b0;
 //
 // cust5_op, cust5_limm (L immediate)
 //
+`ifdef OR1200_CUST5_IMPLEMENTED
 assign cust5_op = ex_insn[4:0];
 assign cust5_limm = ex_insn[10:5];
+`else
+assign cust5_op = 5'b00000;
+assign cust5_limm = 6'b000000;
+`endif
 
 //
 //

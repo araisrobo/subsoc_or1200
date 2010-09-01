@@ -86,13 +86,17 @@ input         flag;
 //
 reg	[width-1:0]		result;
 reg	[width-1:0]		shifted_rotated;
-reg	[width-1:0]		result_cust5;
 reg				flagforw;
 reg				flagcomp;
 reg				flag_we;
 reg				cy_we;
 wire	[width-1:0]		comp_a;
 wire	[width-1:0]		comp_b;
+
+`ifdef OR1200_CUST5_IMPLEMENTED
+reg	[width-1:0]		result_cust5;
+`endif
+
 `ifdef OR1200_IMPL_ALU_COMP1
 wire				a_eq_b;
 wire				a_lt_b;
@@ -142,9 +146,12 @@ end
 //
 // Central part of the ALU
 //
-always @(alu_op or a or b or result_sum or result_and or macrc_op or shifted_rotated or mult_mac_result or flag or result_cust5 or carry
+always @(alu_op or a or b or result_sum or result_and or macrc_op or shifted_rotated or mult_mac_result or flag or carry 
+`ifdef OR1200_CUST5_IMPLEMENTED
+          or result_cust5
+`endif
 `ifdef OR1200_IMPL_ADDC
-         or result_csum
+          or result_csum
 `endif
 ) begin
 `ifdef OR1200_CASE_DEFAULT
@@ -155,9 +162,11 @@ always @(alu_op or a or b or result_sum or result_and or macrc_op or shifted_rot
 		`OR1200_ALUOP_FF1: begin
 			result = a[0] ? 1 : a[1] ? 2 : a[2] ? 3 : a[3] ? 4 : a[4] ? 5 : a[5] ? 6 : a[6] ? 7 : a[7] ? 8 : a[8] ? 9 : a[9] ? 10 : a[10] ? 11 : a[11] ? 12 : a[12] ? 13 : a[13] ? 14 : a[14] ? 15 : a[15] ? 16 : a[16] ? 17 : a[17] ? 18 : a[18] ? 19 : a[19] ? 20 : a[20] ? 21 : a[21] ? 22 : a[22] ? 23 : a[23] ? 24 : a[24] ? 25 : a[25] ? 26 : a[26] ? 27 : a[27] ? 28 : a[28] ? 29 : a[29] ? 30 : a[30] ? 31 : a[31] ? 32 : 0;
 		end
+`ifdef OR1200_CUST5_IMPLEMENTED
 		`OR1200_ALUOP_CUST5 : begin 
 				result = result_cust5;
 		end
+`endif
 		`OR1200_ALUOP_SHROT : begin 
 				result = shifted_rotated;
 		end
@@ -219,6 +228,7 @@ end
 //
 // Examples for move byte, set bit and clear bit
 //
+`ifdef OR1200_CUST5_IMPLEMENTED
 always @(cust5_op or cust5_limm or a or b) begin
 	casex (cust5_op)		// synopsys parallel_case
 		5'h1 : begin 
@@ -241,6 +251,7 @@ always @(cust5_op or cust5_limm or a or b) begin
 		end
 	endcase
 end
+`endif
 
 //
 // Generate flag and flag write enable
@@ -320,21 +331,102 @@ end
 //
 // Shifts and rotation
 //
+`ifdef OR1200_IMPL_ALU_ROTATE
 always @(shrot_op or a or b) begin
 	case (shrot_op)		// synopsys parallel_case
-	`OR1200_SHROTOP_SLL :
+	        `OR1200_SHROTOP_SLL :
 				shifted_rotated = (a << b[4:0]);
 		`OR1200_SHROTOP_SRL :
 				shifted_rotated = (a >> b[4:0]);
 
-`ifdef OR1200_IMPL_ALU_ROTATE
 		`OR1200_SHROTOP_ROR :
 				shifted_rotated = (a << (6'd32-{1'b0, b[4:0]})) | (a >> b[4:0]);
-`endif
 		default:
 				shifted_rotated = ({32{a[31]}} << (6'd32-{1'b0, b[4:0]})) | a >> b[4:0];
 	endcase
 end
+`else
+// WITHOUT_ROTATE_RIGHT:
+// bs: Barrel Shifter
+// bs_msb: the MSB for Shift Right Arithmetic
+wire bs_msb;
+wire bs_right;
+assign bs_msb = shrot_op[`OR1200_SHROTOP_WIDTH-1] & a[width-1];
+assign bs_right = |shrot_op; // ROR(11), SRA(10), SRL(01), SLL(00)
+// assign bs_inport = a;
+// assign bs_range = b[4:0];
+always @(bs_msb or bs_right or a or b[4:0])
+begin
+    case ({bs_right, b[4:0]}) // synopsys parallel_case
+        6'd32,                                  // shift right arithmetic, or logic
+        6'd0:   shifted_rotated <=  a;  // shift left logic
+        6'd1:   shifted_rotated <= {a[30:0], 1'b0};
+        6'd2:   shifted_rotated <= {a[29:0], 2'b0};
+        6'd3:   shifted_rotated <= {a[28:0], 3'b0};
+        6'd4:   shifted_rotated <= {a[27:0], 4'b0};
+        6'd5:   shifted_rotated <= {a[26:0], 5'b0};
+        6'd6:   shifted_rotated <= {a[25:0], 6'b0};
+        6'd7:   shifted_rotated <= {a[24:0], 7'b0};
+        6'd8:   shifted_rotated <= {a[23:0], 8'b0};
+        6'd9:   shifted_rotated <= {a[22:0], 9'b0};
+        6'd10:  shifted_rotated <= {a[21:0], 10'b0};
+        6'd11:  shifted_rotated <= {a[20:0], 11'b0};
+        6'd12:  shifted_rotated <= {a[19:0], 12'b0};
+        6'd13:  shifted_rotated <= {a[18:0], 13'b0};
+        6'd14:  shifted_rotated <= {a[17:0], 14'b0};
+        6'd15:  shifted_rotated <= {a[16:0], 15'b0};
+        6'd16:  shifted_rotated <= {a[15:0], 16'b0};
+        6'd17:  shifted_rotated <= {a[14:0], 17'b0};
+        6'd18:  shifted_rotated <= {a[13:0], 18'b0};
+        6'd19:  shifted_rotated <= {a[12:0], 19'b0};
+        6'd20:  shifted_rotated <= {a[11:0], 20'b0};
+        6'd21:  shifted_rotated <= {a[10:0], 21'b0};
+        6'd22:  shifted_rotated <= {a[9:0],  22'b0};
+        6'd23:  shifted_rotated <= {a[8:0],  23'b0};
+        6'd24:  shifted_rotated <= {a[7:0],  24'b0};
+        6'd25:  shifted_rotated <= {a[6:0],  25'b0};
+        6'd26:  shifted_rotated <= {a[5:0],  26'b0};
+        6'd27:  shifted_rotated <= {a[4:0],  27'b0};
+        6'd28:  shifted_rotated <= {a[3:0],  28'b0};
+        6'd29:  shifted_rotated <= {a[2:0],  29'b0};
+        6'd30:  shifted_rotated <= {a[1:0],  30'b0};
+        6'd31:  shifted_rotated <= {a[  0],  31'b0};
+        // 32 ~ 63  // shift right arithmetic/logic
+        6'd33:  shifted_rotated <= {    bs_msb,   a[31:1]};
+        6'd34:  shifted_rotated <= {{ 2{bs_msb}}, a[31:2]};
+        6'd35:  shifted_rotated <= {{ 3{bs_msb}}, a[31:3]};
+        6'd36:  shifted_rotated <= {{ 4{bs_msb}}, a[31:4]};
+        6'd37:  shifted_rotated <= {{ 5{bs_msb}}, a[31:5]};
+        6'd38:  shifted_rotated <= {{ 6{bs_msb}}, a[31:6]};
+        6'd39:  shifted_rotated <= {{ 7{bs_msb}}, a[31:7]};
+        6'd40:  shifted_rotated <= {{ 8{bs_msb}}, a[31:8]};
+        6'd41:  shifted_rotated <= {{ 9{bs_msb}}, a[31:9]};
+        6'd42:  shifted_rotated <= {{10{bs_msb}}, a[31:10]};
+        6'd43:  shifted_rotated <= {{11{bs_msb}}, a[31:11]};
+        6'd44:  shifted_rotated <= {{12{bs_msb}}, a[31:12]};
+        6'd45:  shifted_rotated <= {{13{bs_msb}}, a[31:13]};
+        6'd46:  shifted_rotated <= {{14{bs_msb}}, a[31:14]};
+        6'd47:  shifted_rotated <= {{15{bs_msb}}, a[31:15]};
+        6'd48:  shifted_rotated <= {{16{bs_msb}}, a[31:16]};
+        6'd49:  shifted_rotated <= {{17{bs_msb}}, a[31:17]};
+        6'd50:  shifted_rotated <= {{18{bs_msb}}, a[31:18]};
+        6'd51:  shifted_rotated <= {{19{bs_msb}}, a[31:19]};
+        6'd52:  shifted_rotated <= {{20{bs_msb}}, a[31:20]};
+        6'd53:  shifted_rotated <= {{21{bs_msb}}, a[31:21]};
+        6'd54:  shifted_rotated <= {{22{bs_msb}}, a[31:22]};
+        6'd55:  shifted_rotated <= {{23{bs_msb}}, a[31:23]};
+        6'd56:  shifted_rotated <= {{24{bs_msb}}, a[31:24]};
+        6'd57:  shifted_rotated <= {{25{bs_msb}}, a[31:25]};
+        6'd58:  shifted_rotated <= {{26{bs_msb}}, a[31:26]};
+        6'd59:  shifted_rotated <= {{27{bs_msb}}, a[31:27]};
+        6'd60:  shifted_rotated <= {{28{bs_msb}}, a[31:28]};
+        6'd61:  shifted_rotated <= {{29{bs_msb}}, a[31:29]};
+        6'd62:  shifted_rotated <= {{30{bs_msb}}, a[31:30]};
+        6'd63:  shifted_rotated <= {{31{bs_msb}}, a[31   ]};
+        default: shifted_rotated <= 'bx;
+    endcase
+end // Barrel Shift
+`endif
 
 //
 // First type of compare implementation
