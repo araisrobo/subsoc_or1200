@@ -151,7 +151,11 @@ always @(muxin_a or muxin_b or muxin_c or muxin_d or muxin_e or rfwb_op) begin
 // synopsys translate_on
 `endif
 	       end		      
-`endif	  	  
+`endif // !OR1200_FPU_IMPLEMENTED
+                
+                default: begin  // add "default" to prevent FPGA Synthesis Warning (XST)
+                          muxout = 'bx;
+                end
 	endcase
 end
 
