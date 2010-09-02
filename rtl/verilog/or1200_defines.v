@@ -131,7 +131,7 @@
 //
 // Do not implement Data cache
 //
-//`define OR1200_NO_DC
+`define OR1200_NO_DC
 
 //
 // Do not implement Insn cache
@@ -163,8 +163,8 @@
 `define OR1200_IC_1W_512B
 //`define OR1200_IC_1W_4KB
 //`define OR1200_IC_1W_8KB
-//`define OR1200_DC_1W_4KB
-`define OR1200_DC_1W_8KB
+`define OR1200_DC_1W_4KB
+//`define OR1200_DC_1W_8KB
 
 `endif
 
@@ -371,7 +371,7 @@
 //
 // To implement divide, both multiplier and MAC needs to be implemented.
 //
-`define OR1200_DIV_IMPLEMENTED
+// `define OR1200_DIV_IMPLEMENTED
 
 //
 // Low power, slower multiplier
