@@ -90,7 +90,7 @@ module or1200_top(
 	pm_clksd_o, pm_dc_gate_o, pm_ic_gate_o, pm_dmmu_gate_o, 
 	pm_immu_gate_o, pm_tt_gate_o, pm_cpu_gate_o, pm_wakeup_o, pm_lvolt_o
 
-,sig_tick		  
+        ,sig_tick		  
 
 );
 
