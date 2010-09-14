@@ -114,7 +114,8 @@ module or1200_dpram
    // Data output drivers
    //
    //assign do_a = (oe_a) ? mem[addr_a_reg] : {dw{1'b0}};
-   assign do_a = mem[addr_a_reg];
+   // assign do_a = mem[addr_a_reg];
+   assign do_a = (addr_a_reg == 0) ? {dw{1'b0}} : mem[addr_a_reg];
    
    
    //
