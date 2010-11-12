@@ -358,8 +358,9 @@ assign bs_right = |shrot_op; // ROR(11), SRA(10), SRL(01), SLL(00)
 always @(bs_msb or bs_right or a or b[4:0])
 begin
     case ({bs_right, b[4:0]}) // synopsys parallel_case
-        6'd32,                                  // shift right arithmetic, or logic
+        6'd32,                          // shift right with 0-bit (arithmetic/logic)
         6'd0:   shifted_rotated <=  a;  // shift left logic
+
         6'd1:   shifted_rotated <= {a[30:0], 1'b0};
         6'd2:   shifted_rotated <= {a[29:0], 2'b0};
         6'd3:   shifted_rotated <= {a[28:0], 3'b0};
@@ -391,6 +392,7 @@ begin
         6'd29:  shifted_rotated <= {a[2:0],  29'b0};
         6'd30:  shifted_rotated <= {a[1:0],  30'b0};
         6'd31:  shifted_rotated <= {a[  0],  31'b0};
+
         // 32 ~ 63  // shift right arithmetic/logic
         6'd33:  shifted_rotated <= {    bs_msb,   a[31:1]};
         6'd34:  shifted_rotated <= {{ 2{bs_msb}}, a[31:2]};
