@@ -111,6 +111,7 @@ wire	[width-1:0]		result;
 wire	[2*width-1:0]		mul_prod_r;
 `endif
 wire	[2*width-1:0]		mul_prod;
+wire	[2*width-1:0]		mul_prod_u;
 wire	[`OR1200_MACOP_WIDTH-1:0]	mac_op;
 `ifdef OR1200_MAC_IMPLEMENTED
 reg	[`OR1200_MACOP_WIDTH-1:0]	mac_op_r1;
@@ -157,8 +158,11 @@ assign y = (alu_op_div & b[31]) ? ~b + 1'b1 :
 	   alu_op_div_divu | (alu_op == `OR1200_ALUOP_MUL) | (|mac_op) ? 
 	   b : 32'h0000_0000;
 `else
-assign x = alu_op_div & a[31] ? ~a + 32'b1 : a;
-assign y = alu_op_div & b[31] ? ~b + 32'b1 : b;
+// assign x = alu_op_div & a[31] ? ~a + 32'b1 : a;
+// assign y = alu_op_div & b[31] ? ~b + 32'b1 : b;
+assign x = a[31] ? ~a + 32'b1 : a;
+assign y = b[31] ? ~b + 32'b1 : b;
+assign mul_prod = (a[31] ^ b[31]) ? ~mul_prod_u + 64'b1 : mul_prod_u;
 `endif
 `ifdef OR1200_DIV_IMPLEMENTED
 assign alu_op_div = (alu_op == `OR1200_ALUOP_DIV);
@@ -197,7 +201,7 @@ always @(alu_op or mul_prod_r or mac_r or a or b)
    //
    // Instantiation of the multiplier
    //
- `ifdef OR1200_ASIC_MULTP2_32X32
+`ifdef OR1200_ASIC_MULTP2_32X32
 or1200_amultp2_32x32 or1200_amultp2_32x32(
 	.X(x),
 	.Y(y),
@@ -206,6 +210,15 @@ or1200_amultp2_32x32 or1200_amultp2_32x32(
 	.P(mul_prod)
 );
 `else // OR1200_ASIC_MULTP2_32X32
+`ifdef OR1200_FPGA_MULTP2_32X32
+or1200_fmultp2_32x32 or1200_fmultp2_32x32(
+	.X(x),
+	.Y(y),
+	.RST(rst),
+	.CLK(clk),
+	.P(mul_prod_u)
+);
+`else
 or1200_gmultp2_32x32 or1200_gmultp2_32x32(
 	.X(x),
 	.Y(y),
@@ -213,6 +226,7 @@ or1200_gmultp2_32x32 or1200_gmultp2_32x32(
 	.CLK(clk),
 	.P(mul_prod)
 );
+`endif
 `endif // OR1200_ASIC_MULTP2_32X32
 
 //
@@ -293,9 +307,9 @@ always @(posedge rst or posedge clk)
 	else if (spr_machi_we)
 		mac_r[63:32] <=  spr_dat_i;
 `endif
-	else if (mac_op_r3 == `OR1200_MACOP_MAC)
+	else if ((mac_op_r3 == `OR1200_MACOP_MAC) && !ex_freeze)
 		mac_r <=  mac_r + mul_prod_r;
-	else if (mac_op_r3 == `OR1200_MACOP_MSB)
+	else if ((mac_op_r3 == `OR1200_MACOP_MSB) && !ex_freeze)
 		mac_r <=  mac_r - mul_prod_r;
 	else if (macrc_op && !ex_freeze)
 		mac_r <=  64'h0000_0000_0000_0000;

@@ -76,22 +76,22 @@
 //
 // Do not implement Data cache
 //
-//`define OR1200_NO_DC
+`define OR1200_NO_DC
 
 //
 // Do not implement Insn cache
 //
-//`define OR1200_NO_IC
+`define OR1200_NO_IC
 
 //
 // Do not implement Data MMU
 //
-//`define OR1200_NO_DMMU
+`define OR1200_NO_DMMU
 
 //
 // Do not implement Insn MMU
 //
-//`define OR1200_NO_IMMU
+`define OR1200_NO_IMMU
 
 //
 // Select between ASIC optimized and generic multiplier
@@ -152,9 +152,12 @@
 // Select between ASIC and generic multiplier
 //
 // (Generic seems to trigger a bug in the Cadence Ncsim simulator)
+// (the result of 32-bit mult 32-bit integer is still 32-bit in Ncsim,
+//  which would be wrong for "64-bit = 32-bit * 32-bit" assumption.)
 //
 //`define OR1200_ASIC_MULTP2_32X32
-`define OR1200_GENERIC_MULTP2_32X32
+//`define OR1200_GENERIC_MULTP2_32X32
+`define OR1200_FPGA_MULTP2_32X32
 
 //
 // Size/type of insn/data cache if implemented
@@ -704,20 +707,20 @@
 // To avoid implementation of a certain exception,
 // simply comment out corresponding line
 //
-`define OR1200_EXCEPT_UNUSED		`OR1200_EXCEPT_WIDTH'hf
-`define OR1200_EXCEPT_TRAP		`OR1200_EXCEPT_WIDTH'he
+// `define OR1200_EXCEPT_UNUSED		`OR1200_EXCEPT_WIDTH'hf
+// `define OR1200_EXCEPT_TRAP		`OR1200_EXCEPT_WIDTH'he
 `define OR1200_EXCEPT_FLOAT		`OR1200_EXCEPT_WIDTH'hd
-`define OR1200_EXCEPT_SYSCALL		`OR1200_EXCEPT_WIDTH'hc
-`define OR1200_EXCEPT_RANGE		`OR1200_EXCEPT_WIDTH'hb
-`define OR1200_EXCEPT_ITLBMISS		`OR1200_EXCEPT_WIDTH'ha
-`define OR1200_EXCEPT_DTLBMISS		`OR1200_EXCEPT_WIDTH'h9
-`define OR1200_EXCEPT_INT		`OR1200_EXCEPT_WIDTH'h8
-`define OR1200_EXCEPT_ILLEGAL		`OR1200_EXCEPT_WIDTH'h7
-`define OR1200_EXCEPT_ALIGN		`OR1200_EXCEPT_WIDTH'h6
-`define OR1200_EXCEPT_TICK		`OR1200_EXCEPT_WIDTH'h5
-`define OR1200_EXCEPT_IPF		`OR1200_EXCEPT_WIDTH'h4
-`define OR1200_EXCEPT_DPF		`OR1200_EXCEPT_WIDTH'h3
-`define OR1200_EXCEPT_BUSERR		`OR1200_EXCEPT_WIDTH'h2
+// `define OR1200_EXCEPT_SYSCALL		`OR1200_EXCEPT_WIDTH'hc
+// `define OR1200_EXCEPT_RANGE		`OR1200_EXCEPT_WIDTH'hb
+// `define OR1200_EXCEPT_ITLBMISS		`OR1200_EXCEPT_WIDTH'ha
+// `define OR1200_EXCEPT_DTLBMISS		`OR1200_EXCEPT_WIDTH'h9
+// `define OR1200_EXCEPT_INT		`OR1200_EXCEPT_WIDTH'h8
+// `define OR1200_EXCEPT_ILLEGAL		`OR1200_EXCEPT_WIDTH'h7
+// `define OR1200_EXCEPT_ALIGN		`OR1200_EXCEPT_WIDTH'h6
+// `define OR1200_EXCEPT_TICK		`OR1200_EXCEPT_WIDTH'h5
+// `define OR1200_EXCEPT_IPF		`OR1200_EXCEPT_WIDTH'h4
+// `define OR1200_EXCEPT_DPF		`OR1200_EXCEPT_WIDTH'h3
+// `define OR1200_EXCEPT_BUSERR		`OR1200_EXCEPT_WIDTH'h2
 `define OR1200_EXCEPT_RESET		`OR1200_EXCEPT_WIDTH'h1
 `define OR1200_EXCEPT_NONE		`OR1200_EXCEPT_WIDTH'h0
 
@@ -858,7 +861,7 @@
 //
 
 // Define it if you want DU implemented
-`define OR1200_DU_IMPLEMENTED
+// `define OR1200_DU_IMPLEMENTED
 
 //
 // Define if you want HW Breakpoints
