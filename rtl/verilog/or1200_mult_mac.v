@@ -307,9 +307,11 @@ always @(posedge rst or posedge clk)
 	else if (spr_machi_we)
 		mac_r[63:32] <=  spr_dat_i;
 `endif
-	else if ((mac_op_r3 == `OR1200_MACOP_MAC) && !ex_freeze)
+	// else if ((mac_op_r3 == `OR1200_MACOP_MAC) && !ex_freeze)
+	else if ((mac_op_r3 == `OR1200_MACOP_MAC))
 		mac_r <=  mac_r + mul_prod_r;
-	else if ((mac_op_r3 == `OR1200_MACOP_MSB) && !ex_freeze)
+	// else if ((mac_op_r3 == `OR1200_MACOP_MSB) && !ex_freeze)
+	else if ((mac_op_r3 == `OR1200_MACOP_MSB))
 		mac_r <=  mac_r - mul_prod_r;
 	else if (macrc_op && !ex_freeze)
 		mac_r <=  64'h0000_0000_0000_0000;
