@@ -879,7 +879,8 @@ always @(id_insn) begin
 	endcase
 end
 
-always @(posedge clk or posedge rst) begin
+// always @(posedge clk or posedge rst) begin
+always @(posedge clk) begin
 	if (rst 
             || (!ex_freeze & id_freeze | ex_flushpipe)
             || (ex_mac_op != `OR1200_MACOP_NOP)

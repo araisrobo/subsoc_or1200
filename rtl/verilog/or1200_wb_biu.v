@@ -211,9 +211,7 @@ module or1200_wb_biu(
    // 
    // WB FSM - combinatorial part
    // 
-   always @(wb_fsm_state_cur or burst_len or wb_err_i or wb_rty_i or wb_ack or 
-	    wb_cti_o or wb_sel_o or wb_stb_o or wb_we_o or biu_cyc_i or 
-	    biu_stb or biu_cab_i or biu_sel_i or biu_we_i) begin
+   always @(*) begin
       // States of WISHBONE Finite State Machine
       case(wb_fsm_state_cur)
 	// IDLE 
