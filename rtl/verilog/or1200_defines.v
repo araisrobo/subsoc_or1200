@@ -152,9 +152,12 @@
 // Select between ASIC and generic multiplier
 //
 // (Generic seems to trigger a bug in the Cadence Ncsim simulator)
+// (the result of 32-bit mult 32-bit integer is still 32-bit in Ncsim,
+//  which would be wrong for "64-bit = 32-bit * 32-bit" assumption.)
 //
 //`define OR1200_ASIC_MULTP2_32X32
-`define OR1200_GENERIC_MULTP2_32X32
+//`define OR1200_GENERIC_MULTP2_32X32
+`define OR1200_FPGA_MULTP2_32X32
 
 //
 // Size/type of insn/data cache if implemented

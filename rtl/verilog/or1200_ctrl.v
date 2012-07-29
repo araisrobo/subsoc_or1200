@@ -879,11 +879,15 @@ always @(id_insn) begin
 	endcase
 end
 
-always @(posedge clk or posedge rst) begin
-	if (rst)
+// always @(posedge clk or posedge rst) begin
+always @(posedge clk) begin
+	if (rst 
+            || (!ex_freeze & id_freeze | ex_flushpipe)
+            || (ex_mac_op != `OR1200_MACOP_NOP)
+           )
 		ex_mac_op <=  `OR1200_MACOP_NOP;
-	else if (!ex_freeze & id_freeze | ex_flushpipe)
-		ex_mac_op <=  `OR1200_MACOP_NOP;
+// 	else if (!ex_freeze & id_freeze | ex_flushpipe)
+// 		ex_mac_op <=  `OR1200_MACOP_NOP;
 	else if (!ex_freeze)
 		ex_mac_op <=  id_mac_op;
 end
