@@ -1006,7 +1006,7 @@
 //
 
 // Define it if you want PIC implemented
-`define OR1200_PIC_IMPLEMENTED
+// `define OR1200_PIC_IMPLEMENTED
 
 // Define number of interrupt inputs (2-31)
 `define OR1200_PIC_INTS 31
