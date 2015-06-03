@@ -159,9 +159,10 @@ always @(alu_op or a or b or result_sum or result_and or macrc_op or shifted_rot
 `else
 	casex (alu_op)		// synopsys full_case parallel_case
 `endif
-		`OR1200_ALUOP_FF1: begin
-			result = a[0] ? 1 : a[1] ? 2 : a[2] ? 3 : a[3] ? 4 : a[4] ? 5 : a[5] ? 6 : a[6] ? 7 : a[7] ? 8 : a[8] ? 9 : a[9] ? 10 : a[10] ? 11 : a[11] ? 12 : a[12] ? 13 : a[13] ? 14 : a[14] ? 15 : a[15] ? 16 : a[16] ? 17 : a[17] ? 18 : a[18] ? 19 : a[19] ? 20 : a[20] ? 21 : a[21] ? 22 : a[22] ? 23 : a[23] ? 24 : a[24] ? 25 : a[25] ? 26 : a[26] ? 27 : a[27] ? 28 : a[28] ? 29 : a[29] ? 30 : a[30] ? 31 : a[31] ? 32 : 0;
-		end
+// l.ff1: not defined in gcc/config/or32/or32.md
+// obsolete:		`OR1200_ALUOP_FF1: begin
+// obsolete:			result = a[0] ? 1 : a[1] ? 2 : a[2] ? 3 : a[3] ? 4 : a[4] ? 5 : a[5] ? 6 : a[6] ? 7 : a[7] ? 8 : a[8] ? 9 : a[9] ? 10 : a[10] ? 11 : a[11] ? 12 : a[12] ? 13 : a[13] ? 14 : a[14] ? 15 : a[15] ? 16 : a[16] ? 17 : a[17] ? 18 : a[18] ? 19 : a[19] ? 20 : a[20] ? 21 : a[21] ? 22 : a[22] ? 23 : a[23] ? 24 : a[24] ? 25 : a[25] ? 26 : a[26] ? 27 : a[27] ? 28 : a[28] ? 29 : a[29] ? 30 : a[30] ? 31 : a[31] ? 32 : 0;
+// obsolete:		end
 `ifdef OR1200_CUST5_IMPLEMENTED
 		`OR1200_ALUOP_CUST5 : begin 
 				result = result_cust5;
@@ -331,21 +332,6 @@ end
 //
 // Shifts and rotation
 //
-`ifdef OR1200_IMPL_ALU_ROTATE
-always @(shrot_op or a or b) begin
-	case (shrot_op)		// synopsys parallel_case
-	        `OR1200_SHROTOP_SLL :
-				shifted_rotated = (a << b[4:0]);
-		`OR1200_SHROTOP_SRL :
-				shifted_rotated = (a >> b[4:0]);
-
-		`OR1200_SHROTOP_ROR :
-				shifted_rotated = (a << (6'd32-{1'b0, b[4:0]})) | (a >> b[4:0]);
-		default:
-				shifted_rotated = ({32{a[31]}} << (6'd32-{1'b0, b[4:0]})) | a >> b[4:0];
-	endcase
-end
-`else
 // WITHOUT_ROTATE_RIGHT:
 // bs: Barrel Shifter
 // bs_msb: the MSB for Shift Right Arithmetic
@@ -428,7 +414,6 @@ begin
         default: shifted_rotated <= 'bx;
     endcase
 end // Barrel Shift
-`endif
 
 //
 // First type of compare implementation
@@ -454,28 +439,28 @@ always @(comp_op or a_eq_b or a_lt_b) begin
 end
 `endif
 
-//
-// Second type of compare implementation
-//
-`ifdef OR1200_IMPL_ALU_COMP2
-always @(comp_op or comp_a or comp_b) begin
-	case(comp_op[2:0])	// synopsys parallel_case
-		`OR1200_COP_SFEQ:
-			flagcomp = (comp_a == comp_b);
-		`OR1200_COP_SFNE:
-			flagcomp = (comp_a != comp_b);
-		`OR1200_COP_SFGT:
-			flagcomp = (comp_a > comp_b);
-		`OR1200_COP_SFGE:
-			flagcomp = (comp_a >= comp_b);
-		`OR1200_COP_SFLT:
-			flagcomp = (comp_a < comp_b);
-		`OR1200_COP_SFLE:
-			flagcomp = (comp_a <= comp_b);
-		default:
-			flagcomp = 1'b0;
-	endcase
-end
-`endif
+//larger area for FPGA: //
+//larger area for FPGA: // Second type of compare implementation
+//larger area for FPGA: //
+//larger area for FPGA: `ifdef OR1200_IMPL_ALU_COMP2
+//larger area for FPGA: always @(comp_op or comp_a or comp_b) begin
+//larger area for FPGA: 	case(comp_op[2:0])	// synopsys parallel_case
+//larger area for FPGA: 		`OR1200_COP_SFEQ:
+//larger area for FPGA: 			flagcomp = (comp_a == comp_b);
+//larger area for FPGA: 		`OR1200_COP_SFNE:
+//larger area for FPGA: 			flagcomp = (comp_a != comp_b);
+//larger area for FPGA: 		`OR1200_COP_SFGT:
+//larger area for FPGA: 			flagcomp = (comp_a > comp_b);
+//larger area for FPGA: 		`OR1200_COP_SFGE:
+//larger area for FPGA: 			flagcomp = (comp_a >= comp_b);
+//larger area for FPGA: 		`OR1200_COP_SFLT:
+//larger area for FPGA: 			flagcomp = (comp_a < comp_b);
+//larger area for FPGA: 		`OR1200_COP_SFLE:
+//larger area for FPGA: 			flagcomp = (comp_a <= comp_b);
+//larger area for FPGA: 		default:
+//larger area for FPGA: 			flagcomp = 1'b0;
+//larger area for FPGA: 	endcase
+//larger area for FPGA: end
+//larger area for FPGA: `endif
 
 endmodule

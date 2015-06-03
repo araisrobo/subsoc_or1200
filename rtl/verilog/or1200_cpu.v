@@ -307,6 +307,7 @@ wire				ex_spr_read;
 wire				ex_spr_write;
 wire				if_stall;
 wire				id_macrc_op;
+wire				id_spr_op;
 wire				ex_macrc_op;
 wire	[`OR1200_MACOP_WIDTH-1:0] id_mac_op;
 wire	[`OR1200_MACOP_WIDTH-1:0] mac_op;
@@ -516,6 +517,7 @@ or1200_ctrl or1200_ctrl(
 	.ex_spr_write(ex_spr_write),
 	.id_mac_op(id_mac_op),
 	.id_macrc_op(id_macrc_op),
+	.id_spr_op(id_spr_op),
 	.ex_macrc_op(ex_macrc_op),
 	.rfe(rfe),
 	.du_hwbkpt(du_hwbkpt),
@@ -635,6 +637,7 @@ or1200_mult_mac or1200_mult_mac(
 	.rst(rst),
 	.ex_freeze(ex_freeze),
 	.id_macrc_op(id_macrc_op),
+	.id_spr_op(id_spr_op),
 	.macrc_op(ex_macrc_op),
 	.a(operand_a),
 	.b(operand_b),

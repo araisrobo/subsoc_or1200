@@ -70,35 +70,35 @@ module or1200_ctrl
    multicycle, wait_on, wbforw_valid, sig_syscall, sig_trap,
    force_dslot_fetch, no_more_dslot, id_void, ex_void, ex_spr_read, 
    ex_spr_write, 
-   id_mac_op, id_macrc_op, ex_macrc_op, rfe, except_illegal, dc_no_writethrough
+   id_mac_op, id_macrc_op, id_spr_op, ex_macrc_op, rfe, except_illegal, dc_no_writethrough
    );
 
 //
 // I/O
 //
-input					clk;
-input					rst;
-input					id_freeze;
-input					ex_freeze;
-input					wb_freeze;
-output					if_flushpipe;
-output					id_flushpipe;
-output					ex_flushpipe;
-output					wb_flushpipe;
-input					extend_flush;
-input					except_flushpipe;
-input                           abort_mvspr ;
-input	[31:0]			if_insn;
-output	[31:0]			id_insn;
-output	[31:0]			ex_insn;
-output	[`OR1200_BRANCHOP_WIDTH-1:0]		ex_branch_op;
-output	[`OR1200_BRANCHOP_WIDTH-1:0]		id_branch_op;
-input						ex_branch_taken;
-output	[`OR1200_REGFILE_ADDR_WIDTH-1:0]	rf_addrw;
-output	[`OR1200_REGFILE_ADDR_WIDTH-1:0]	rf_addra;
-output	[`OR1200_REGFILE_ADDR_WIDTH-1:0]	rf_addrb;
-output					rf_rda;
-output					rf_rdb;
+input					    clk;
+input					    rst;
+input					    id_freeze;
+input					    ex_freeze;
+input					    wb_freeze;
+output					    if_flushpipe;
+output					    id_flushpipe;
+output					    ex_flushpipe;
+output					    wb_flushpipe;
+input					    extend_flush;
+input					    except_flushpipe;
+input                                       abort_mvspr ;
+input	[31:0]			            if_insn;
+output	[31:0]			            id_insn;
+output	[31:0]			            ex_insn;
+output	[`OR1200_BRANCHOP_WIDTH-1:0]	    ex_branch_op;
+output	[`OR1200_BRANCHOP_WIDTH-1:0]	    id_branch_op;
+input					    ex_branch_taken;
+output	[`OR1200_REGFILE_ADDR_WIDTH-1:0]    rf_addrw;
+output	[`OR1200_REGFILE_ADDR_WIDTH-1:0]    rf_addra;
+output	[`OR1200_REGFILE_ADDR_WIDTH-1:0]    rf_addrb;
+output					    rf_rda;
+output					    rf_rdb;
 output	[`OR1200_ALUOP_WIDTH-1:0]		alu_op;
 output	[`OR1200_MACOP_WIDTH-1:0]		mac_op;
 output	[`OR1200_SHROTOP_WIDTH-1:0]		shrot_op;
@@ -132,6 +132,7 @@ output					ex_spr_read;
 output					ex_spr_write;
 output	[`OR1200_MACOP_WIDTH-1:0]	id_mac_op;
 output					id_macrc_op;
+output					id_spr_op;
 output					ex_macrc_op;
 output					rfe;
 output					except_illegal;
@@ -341,7 +342,10 @@ assign if_maci_op = 1'b0;
 // l.macrc in ID stage
 //
 `ifdef OR1200_MAC_IMPLEMENTED
-assign id_macrc_op = (id_insn[31:26] == `OR1200_OR32_MOVHI) & id_insn[16];
+// let MAC trigger mac_stall_r signal if there's MACOP in its pipeline
+assign id_macrc_op = ((id_insn[31:26] == `OR1200_OR32_MOVHI) & id_insn[16]);
+assign id_spr_op   = (id_insn[31:26] == `OR1200_OR32_MTSPR)     // in case of MAC_WRSPR()
+                     | (id_insn[31:26] == `OR1200_OR32_MFSPR);  // in case of MAC_RDSPR()
 `else
 assign id_macrc_op = 1'b0;
 `endif

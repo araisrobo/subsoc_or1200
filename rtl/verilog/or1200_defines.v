@@ -339,8 +339,8 @@
 // Try either one to find what yields
 // higher clock frequencyin your case.
 //
-//`define OR1200_IMPL_ALU_COMP1
-`define OR1200_IMPL_ALU_COMP2
+`define OR1200_IMPL_ALU_COMP1
+//`define OR1200_IMPL_ALU_COMP2
 
 //
 // Implement CUST5 instruction
