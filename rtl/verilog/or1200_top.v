@@ -59,7 +59,7 @@ module or1200_top(
 	clk_i, rst_i, pic_ints_i, clmode_i,
 
 	// Instruction WISHBONE INTERFACE
-	iwb_clk_i, iwb_rst_i, iwb_ack_i, iwb_err_i, iwb_rty_i, iwb_dat_i,
+	iwb_clk_i, iwb_rst_i, iwb_ack_i, iwb_rty_i, iwb_dat_i,
 	iwb_cyc_o, iwb_adr_o, iwb_stb_o, iwb_we_o, iwb_sel_o, iwb_dat_o,
 `ifdef OR1200_WB_CAB
 	iwb_cab_o,
@@ -68,7 +68,7 @@ module or1200_top(
 	iwb_cti_o, iwb_bte_o,
 `endif
 	// Data WISHBONE INTERFACE
-	dwb_clk_i, dwb_rst_i, dwb_ack_i, dwb_err_i, dwb_rty_i, dwb_dat_i,
+	dwb_clk_i, dwb_rst_i, dwb_ack_i, dwb_rty_i, dwb_dat_i,
 	dwb_cyc_o, dwb_adr_o, dwb_stb_o, dwb_we_o, dwb_sel_o, dwb_dat_o,
 `ifdef OR1200_WB_CAB
 	dwb_cab_o,
@@ -116,7 +116,6 @@ input	[ppic_ints-1:0]	pic_ints_i;
 input			iwb_clk_i;	// clock input
 input			iwb_rst_i;	// reset input
 input			iwb_ack_i;	// normal termination
-input			iwb_err_i;	// termination w/ error
 input			iwb_rty_i;	// termination w/ retry
 input	[dw-1:0]	iwb_dat_i;	// input data bus
 output			iwb_cyc_o;	// cycle valid output
@@ -139,7 +138,6 @@ output	[1:0]		iwb_bte_o;	// burst type extension
 input			dwb_clk_i;	// clock input
 input			dwb_rst_i;	// reset input
 input			dwb_ack_i;	// normal termination
-input			dwb_err_i;	// termination w/ error
 input			dwb_rty_i;	// termination w/ retry
 input	[dw-1:0]	dwb_dat_i;	// input data bus
 output			dwb_cyc_o;	// cycle valid output
@@ -441,7 +439,6 @@ or1200_wb_biu iwb_biu(
 	.wb_clk_i(iwb_clk_i),
 	.wb_rst_i(iwb_rst_i),
 	.wb_ack_i(iwb_ack_i),
-	.wb_err_i(iwb_err_i),
 	.wb_rty_i(iwb_rty_i),
 	.wb_dat_i(iwb_dat_i),
 	.wb_cyc_o(iwb_cyc_o),
@@ -485,7 +482,6 @@ or1200_wb_biu dwb_biu(
 	.wb_clk_i(dwb_clk_i),
 	.wb_rst_i(dwb_rst_i),
 	.wb_ack_i(dwb_ack_i),
-	.wb_err_i(dwb_err_i),
 	.wb_rty_i(dwb_rty_i),
 	.wb_dat_i(dwb_dat_i),
 	.wb_cyc_o(dwb_cyc_o),
