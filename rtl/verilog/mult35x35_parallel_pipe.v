@@ -51,7 +51,7 @@
 module MULT35X35_PARALLEL_PIPE (
             CLK, RST, A_IN, B_IN, PROD_OUT, 
             spr_dat_i, acc_rst_i, acc_hi_we_i, acc_lo_we_i,
-            acc_sub_i, acc_sel_i, acc_o
+            acc_sub_i, acc_sel_i, acc_hi_sub_i, acc_hi_sel_i, acc_o
 );
 	
 input           CLK, RST;
@@ -64,6 +64,8 @@ input           acc_hi_we_i;    /* write-enable signal for mac_r[63:32] */
 input           acc_lo_we_i;    /* write-enable signal for mac_r[31: 0] */
 input           acc_sub_i;      /* acc_sub: add(0), sub(1) */
 input           acc_sel_i;      /* acc_sel: from_spr(0), accumulator(1) */
+input           acc_hi_sub_i;   /* mac_r[63:32]acc_sub: add(0), sub(1) */
+input           acc_hi_sel_i;   /* mac_r[63:32]acc_sel: from_spr(0), accumulator(1) */
 output  [63:0]  acc_o;          /* output of accumulator */
 
 wire    [17:0]  BCOUT_1, BCOUT_3;
@@ -422,7 +424,7 @@ DSP48A1_mac_hi (
    // Control Input Ports: 1-bit (each) input: Clocking and operation mode
    .CLK(CLK),               // 1-bit input: clock input
    //                     ,CARRY_IN  ,
-   .OPMODE({acc_sub_i,1'b0,MAC_LO[32],1'b0,1'b1,~acc_sel_i,acc_sel_i,acc_sel_i}), // 8-bit input: operation mode input
+   .OPMODE({acc_hi_sub_i,1'b0,MAC_LO[32],1'b0,1'b1,~acc_hi_sel_i,acc_hi_sel_i,acc_hi_sel_i}), // 8-bit input: operation mode input
    // Data Ports: 18-bit (each) input: Data input and output ports
    .A({4'b0,POUT_4[29:16]}),            // 18-bit input: A data input
    .B({POUT_4[15:0],POUT_3[16:15]}),    // 18-bit input: B data input (connected to fabric or BCOUT of adjacent DSP48A1)

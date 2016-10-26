@@ -111,23 +111,32 @@ reg	[`OR1200_MACOP_WIDTH-1:0]	mac_op_r1;
 // reg	[`OR1200_MACOP_WIDTH-1:0]	mac_op_r3;
 reg				mac_stall_r;
 wire    [2*width-1:0]		mac_r;
+wire                            spr_mac_we_pulse;
+reg                             spr_mac_we_sn;
 wire                            spr_mac_we;
 wire				spr_maclo_we;
 wire				spr_machi_we;
 
 wire                            acc_rst;    /* reset accumulator to 0 */
-wire                            acc_hi_we;  /* write-enable signal for mac_r[63:32] */
 wire                            acc_lo_we;  /* write-enable signal for mac_r[31: 0] */
 reg                             acc_sub;    /* acc_sub: add(0), sub(1) */
 reg                             acc_sel;    /* acc_sel: from_spr(0), accumulator(1) */
+
+reg                             acc_hi_we;  /* write-enable signal for mac_r[63:32] */
+reg                             acc_hi_sub; /* acc_sub: add(0), sub(1) */
+reg                             acc_hi_sel; /* acc_sel: from_spr(0), accumulator(1) */
 
 //
 // Combinatorial logic
 //
 assign spr_mac_we   = spr_cs & spr_write & (spr_addr[`OR1200_SPR_GROUP_BITS] == `OR1200_SPR_GROUP_MAC);
-assign spr_maclo_we = spr_mac_we & spr_addr[`OR1200_MAC_ADDR];
-assign spr_machi_we = spr_mac_we & !spr_addr[`OR1200_MAC_ADDR];
+assign spr_maclo_we = spr_mac_we_pulse & spr_addr[`OR1200_MAC_ADDR];
+assign spr_machi_we = spr_mac_we_pulse & !spr_addr[`OR1200_MAC_ADDR];
 assign spr_dat_o = spr_addr[`OR1200_MAC_ADDR] ? mac_r[31:0] : mac_r[63:32];
+
+assign spr_mac_we_pulse = spr_mac_we & spr_mac_we_sn;
+always @(posedge clk)
+    spr_mac_we_sn <= ~spr_mac_we;
 
 //
 // Select result of current ALU operation to be forwarded
@@ -156,6 +165,8 @@ MULT35X35_PARALLEL_PIPE or1200_sp6_mult35x35
     .acc_lo_we_i    (acc_lo_we),    /* write-enable signal for mac_r[31: 0] */
     .acc_sub_i      (acc_sub),      /* acc_sub: add(0), sub(1) */
     .acc_sel_i      (acc_sel),      /* acc_sel: from_spr(0), accumulator(1) */
+    .acc_hi_sub_i   (acc_hi_sub),   /* mac_r[63:32].acc_hi_sub: add(0), sub(1) */
+    .acc_hi_sel_i   (acc_hi_sel),   /* mac_r[63:32].acc_hi_sel: from_spr(0), accumulator(1) */
     .acc_o          (mac_r)         /* output of accumulator */
 );
 
@@ -214,13 +225,20 @@ always @(posedge rst or posedge clk)
 
 // Combinational Logic for Accumulator (DSP48) 
 assign acc_rst = rst | (macrc_op && !ex_freeze);
-assign acc_hi_we = spr_machi_we | (|mac_op_r1);
 assign acc_lo_we = spr_maclo_we | (|mac_op_r1);
+// BUG: the carry out of MAC_LO[32] is not added into MAC_HI
+// BUG: assign acc_hi_we = spr_machi_we | (|mac_op_r1);
+always @(posedge clk)
+begin
+    acc_hi_we <= (spr_machi_we | (|mac_op_r1));
+    acc_hi_sel <= acc_sel;
+    acc_hi_sub <= acc_sub;
+end
 
 always @ (*)
 begin
     // acc: accumulator
-    casez ({spr_mac_we, mac_op_r1}) // synopsys parallel_case
+    casez ({spr_mac_we_pulse, mac_op_r1}) // synopsys parallel_case
         {1'b1,`OR1200_MACOP_NOP}:   begin
                                     acc_sub     <= 0; /* acc_sub: add(0), sub(1) */
                                     acc_sel     <= 0; /* acc_sel: from_spr(0), accumulator(1) */
