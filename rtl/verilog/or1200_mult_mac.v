@@ -111,7 +111,7 @@ reg	[`OR1200_MACOP_WIDTH-1:0]	mac_op_r1;
 // reg	[`OR1200_MACOP_WIDTH-1:0]	mac_op_r3;
 reg				mac_stall_r;
 wire    [2*width-1:0]		mac_r;
-wire                            spr_mac_we_pulse;
+reg                             spr_mac_we_pulse;
 reg                             spr_mac_we_sn;
 wire                            spr_mac_we;
 wire				spr_maclo_we;
@@ -134,9 +134,12 @@ assign spr_maclo_we = spr_mac_we_pulse & spr_addr[`OR1200_MAC_ADDR];
 assign spr_machi_we = spr_mac_we_pulse & !spr_addr[`OR1200_MAC_ADDR];
 assign spr_dat_o = spr_addr[`OR1200_MAC_ADDR] ? mac_r[31:0] : mac_r[63:32];
 
-assign spr_mac_we_pulse = spr_mac_we & spr_mac_we_sn;
+// pulser at 2nd clock after spr_mac_we rising edge
 always @(posedge clk)
+begin
     spr_mac_we_sn <= ~spr_mac_we;
+    spr_mac_we_pulse <= spr_mac_we & spr_mac_we_sn;
+end
 
 //
 // Select result of current ALU operation to be forwarded
